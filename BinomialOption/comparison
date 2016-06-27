@@ -1,0 +1,16 @@
+1. The LLVM backend prefers the pattern that first v_mov a constant to register
+and v_mul to encode the constant in the v_mul instruction.
+
+Example:
+    v_mov_b32_e32 v21, 0x3e99999a
+    v_mul_f32_e32 v5, v21, v5
+    v_mul_f32_e32 v16, v21, v7
+    v_mul_f32_e32 v20, v21, v15
+    v_mul_f32_e32 v21, v21, v31
+
+    and
+
+    v_mul_f32     v6, 0x3e99999a, v6
+    v_mul_f32     v16, 0x3e99999a, v16
+    v_mul_f32     v18, 0x3e99999a, v18
+    v_mul_f32     v21, 0x3e99999a, v21

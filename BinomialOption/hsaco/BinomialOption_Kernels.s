@@ -88,15 +88,15 @@ binomial_options:                       ; @binomial_options
 	v_mov_b32_e32 v2, s0
 	flat_load_dwordx4 v[5:8], v[2:3]
 	v_rcp_f32_e32 v15, v1
-	v_mov_b32_e32 v9, 0x41200000
-	v_mov_b32_e32 v10, 0x3e800000
+	v_mov_b32_e32 v9, 0x41200000 ; v9 = 10.0f
+	v_mov_b32_e32 v10, 0x3e800000 ; v10 = 0.25f
 	v_cvt_f32_u32_e32 v2, v0
-	v_mov_b32_e32 v21, 0x3e99999a
+	v_mov_b32_e32 v21, 0x3e99999a ; v21 = 0.30000001192092896 (~= VOLATILITY). The alternative chooses to encode the constant into v_mul
 	v_mov_b32_e32 v4, 0x3fb8aa3b
 	v_mov_b32_e32 v3, 0xbf317180
 	v_mad_f32 v24, 2.0, v2, -v1
 	v_mov_b32_e32 v1, 0xb717f7d1
-	v_mov_b32_e32 v2, 0xb5ddea0e
+	v_mov_b32_e32 v2, 0xb5ddea0e ; v2 = -1.6533901998627698e-06 (same)
 	v_mov_b32_e32 v11, 0x41f00000
 	v_mov_b32_e32 v12, 0x42c80000
 	s_waitcnt vmcnt(0) lgkmcnt(0)
@@ -129,13 +129,13 @@ binomial_options:                       ; @binomial_options
 	v_mul_f32_e32 v10, v11, v15
 	v_sqrt_f32_e32 v7, v10
 	v_sqrt_f32_e32 v5, v9
-	v_mul_f32_e32 v5, v21, v5
+	v_mul_f32_e32 v5, v21, v5 ; v5 = VOLATILITY * v5
 	v_mul_f32_e32 v31, v5, v24
 	v_cmp_gt_f32_e32 vcc, 0, v31
 	v_cndmask_b32_e64 v8, 0.5, -0.5, vcc
 	v_mac_f32_e32 v8, v4, v31
 	v_cvt_i32_f32_e32 v13, v8
-	v_mul_f32_e32 v16, v21, v7
+	v_mul_f32_e32 v16, v21, v7 ; v21 = VOLATILITY * v5
 	v_mul_f32_e32 v32, v16, v24
 	v_cmp_gt_f32_e32 vcc, 0, v32
 	v_cvt_f32_i32_e32 v17, v13
@@ -144,7 +144,7 @@ binomial_options:                       ; @binomial_options
 	v_cvt_i32_f32_e32 v33, v7
 	v_mad_f32 v19, v3, v17, v31
 	v_mac_f32_e32 v19, v1, v17
-	v_mov_b32_e32 v18, 0x3331bb4c
+	v_mov_b32_e32 v18, 0x3331bb4c ; v18 = 4.138136944220605e-08 (similar but choose s)
 	v_mov_b32_e32 v11, 0x388ab355
 	v_mul_f32_e32 v7, v19, v19
 	v_mad_f32 v8, v18, v7, v2
@@ -164,7 +164,7 @@ binomial_options:                       ; @binomial_options
 	v_mov_b32_e32 v7, 0x6f800000
 	v_sub_f32_e32 v39, 2.0, v35
 	v_cmp_gt_f32_e64 vcc, |v39|, v7
-	v_mov_b32_e32 v8, 0x2f800000
+	v_mov_b32_e32 v8, 0x2f800000 ; v8 = 2.3283064365386963e-10
 	v_cndmask_b32_e32 v40, 1.0, v8
 	v_mul_f32_e32 v39, v40, v39
 	v_rcp_f32_e32 v39, v39
@@ -213,7 +213,7 @@ binomial_options:                       ; @binomial_options
 	v_mul_f32_e32 v22, v23, v15
 	v_mul_f32_e32 v23, v27, v15
 	v_sqrt_f32_e32 v15, v22
-	v_mul_f32_e32 v20, v21, v15
+	v_mul_f32_e32 v20, v21, v15 ; v20 = VOLATILITY * v15
 	v_mul_f32_e32 v15, v20, v24
 	v_cmp_gt_f32_e32 vcc, 0, v15
 	v_cndmask_b32_e64 v27, 0.5, -0.5, vcc
