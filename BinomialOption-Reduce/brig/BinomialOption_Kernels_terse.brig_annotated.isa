@@ -1,0 +1,145 @@
+AMD HSA Code Object
+  Version 1.0
+HSAIL 
+  Version: 1.0
+  Profile: FULL  Machine model: LARGE  Default float rounding: NEAR
+ISA
+  Vendor AMD  Arch AMDGPU  Version 8:0:1
+Producer 'AMD HSA Runtime Finalizer' Version 1:0
+Producer options
+  '-hsa_call_convention=0 -dump-isa -O2'
+
+Segments (total 1):
+  Segment (0)
+    Type: CODE_AGENT     Flags: 0x00000005
+    Image Size: 592     Memory Size: 592     Align: 256     VAddr: 0
+
+Data Sections (total 1):
+  Section .hsatext (Index 4)
+    Type: 1     Flags: 0x00c00007
+    Size:  592     Address: 0     Align: 256
+
+Relocation Sections (total 0):
+
+Symbols (total 1):
+  Symbol &__OpenCL_binomial_options_kernel (Index 1):
+    Section: .hsatext     Section Offset: 0
+    VAddr: 0     Size: 592     Alignment: 256
+    Kind: KERNEL     Linkage: PROGRAM     Definition: TRUE
+
+AMD Kernel Code for &__OpenCL_binomial_options_kernel: 
+  amd_kernel_code_version_major                                = 1
+  amd_kernel_code_version_minor                                = 1
+  amd_machine_kind                                             = AMDGPU
+  amd_machine_version_major                                    = 0
+  amd_machine_version_minor                                    = 0
+  amd_machine_version_stepping                                 = 0
+  kernel_code_entry_byte_offset                                = 256
+  max_scratch_backing_memory_byte_size                         = 0
+  COMPUTE_PGM_RSRC1 (0xac004100):
+    granulated_workitem_vgpr_count                             = 1
+    granulated_wavefront_sgpr_count                            = 1
+    priority                                                   = 0
+    float_round_mode_32                                        = NEAREST_EVEN
+    float_round_mode_16_64                                     = NEAREST_EVEN
+    float_denorm_mode_32                                       = FLUSH_SOURCE_OUTPUT
+    float_denorm_mode_16_64                                    = FLUSH_NONE
+    enable_dx10_clamp                                          = TRUE
+    enable_ieee_mode                                           = TRUE
+  COMPUTE_PGM_RSRC2 (0x8c000000):
+    user_sgpr_count                                            = 6
+    enable_sgpr_workgroup_id_x                                 = TRUE
+    enable_vgpr_workitem_id                                    = X
+    granulated_lds_size                                        = 0
+  KERNEL_CODE_PROPERTIES (0x4a000900):
+    enable_sgpr_private_segment_buffer                         = TRUE
+    enable_sgpr_kernarg_segment_ptr                            = TRUE
+    private_element_size                                       = DWORD (4 bytes)
+    is_ptr64                                                   = TRUE
+    is_xnack_enabled                                           = TRUE
+  kernarg_segment_byte_size                                    = 96
+  wavefront_sgpr_count                                         = 12
+  workitem_vgpr_count                                          = 5
+  kernarg_segment_alignment                                    = 16 (4)
+  group_segment_alignment                                      = 16 (4)
+  private_segment_alignment                                    = 16 (4)
+  wavefront_size                                               = 64 (6)
+
+Disassembly:
+  asic(VI)
+  type(CS)
+  
+  //
+  // amd_kernel_code_t for &__OpenCL_binomial_options_kernel (000000000000 - 000000000100)
+  //
+  //
+  // &__OpenCL_binomial_options_kernel:
+  //
+  // The backend does at least one dse to group memory store
+  s_load_dwordx2  s[0:1], s[4:5], 0x38                  // 000000000100: C0060002 00000038
+  s_load_dwordx2  s[2:3], s[4:5], 0x40                  // s[2:3]: &output
+  s_movk_i32    s7, 0x0000                              // s7: 0
+  s_lshl_b64    s[4:5], s[6:7], 4                       // s[4:5]: 16 * bid. s6: 32bit workgroup_id => s[6:7]: signext(s6)
+  s_waitcnt     lgkmcnt(0)                              // 
+  s_add_u32     s0, s0, s4                              // s[0:1] = &randArray[bid]
+  s_addc_u32    s1, s1, s5                              // 
+  s_load_dword  s6, s[0:1], 0x00                        // s6: randArray[bid].x
+  s_waitcnt     lgkmcnt(0)                              // 
+  v_cmp_lt_f32  vcc, s6, 0                              // 
+  v_cndmask_b32  v0, 0.5, -0.5, vcc                     // v0 = -0.5 if s6 < 0 else +0.5 (all the same)
+  v_mov_b32     v1, 0x3fb8aa3b                          // v1: 1 / ln(2) [1.4426950216293335] (all the same)
+  v_mac_f32     v0, s6, v1                              // v0 = v1 * s6 + v0 (p = mad(x, invln2, fhalF)) (all the same)
+  v_cvt_i32_f32  v0, v0                                 // p is of int type (all the same)
+  v_readfirstlane_b32  s0, v0                           // s0: integer type of p
+  v_cvt_f32_i32  v0, s0                                 // float fp = p (convert p to fp) (all the same)
+  v_mov_b32     v1, 0xbf317180                          // v1 = -ln2HI [-0.693] (all the same)
+  v_mad_f32     v1, v0, v1, s6                          // v1 = v0 * v1 + randArray[bid].x (hi = mad(fp, -ln2HI, x))
+  v_madmk_f32   v2, v0, 0xb717f7d1, v1                  // v2 = fp * (-ln2LO) + hi (t = lo + hi)
+  v_mul_f32     v3, v2, v2                              // v3 = v2 * v2 (tt = t * t)
+  v_mov_b32     v4, 0xb5ddea0e                          // v4 = -1.6533901998627698e-06 (-0x1.bbd41cp-20f)
+  s_mov_b32     s1, 0x3331bb4c                          // s1 = 4.138136944220605e-08 (0x1.637698p-25f)
+  v_mac_f32     v4, s1, v3                              // v4 = s1 * v3 + v4 (mad(tt, 0x1.637698p-25f, -0x1.bbd41cp-20f))
+  v_madak_f32   v4, v3, v4, 0x388ab355                  // v4 = v3 * v4 + 6.61375597701408e-05 (mad(tt, v4, 0x1.1566aap-14))
+  v_madak_f32   v4, v3, v4, 0xbb360b61                  // v4 = v3 * v4 + -0.0027777778450399637 (mad(tt, v4, -0x1.6c16c2p-9f))
+  s_lshl_b32    s0, s0, 23                              // s0 = (p << 23) line 57 subexpression
+  v_madak_f32   v4, v3, v4, 0x3e2aaaab                  // v4 = v3 * v4 + 0.1666666716337204 (mad(tt, v4, 0x1.555556p-3f))
+  v_mad_f32     v3, v3, -v4, v2                         // v3 = v3 * -v4 + v2 (v = mad(tt, -v4, t))
+
+  // lowering fdiv(t*v, 2.f - v), looks like SITargetLowering::LowerFDIV32 + faster 2.5 ulp
+  v_mul_f32     v2, v2, v3                              // v2 = t * v
+  v_sub_f32     v3, 2.0, v3                             // v3 = 2.f - v
+  s_mov_b32     s1, 0x6f800000                          // s1 = 7.922816251426434e+28
+  v_cmp_gt_f32  vcc, abs(v3), s1                        // set vcc to 1 if v3 > s1
+  v_mov_b32     v4, 0x2f800000                          // v4 = 2.3283064365386963e-10
+  v_cndmask_b32  v4, 1.0, v4, vcc                       // v4 = VCC[i] ? v4 : 1.0
+  v_mul_f32     v3, v3, v4                              // v3 = v3 * v4
+  v_rcp_f32     v3, v3                                  // v3 = 1 / v3
+  v_mul_f32     v2, v3, v2                              // 
+  v_mul_f32     v2, v2, v4                              // v2 = (t * v) / (2.f - v)
+
+  s_mov_b32     s1, 0x3717f7d1                          // s1 = 9.05800061445916e-06 (ln2LO)
+  v_mad_f32     v2, v0, s1, -v2                         // v2 = v0 * s1 - v2 (v2 = -lo - v2)
+  v_sub_f32     v0, v2, v1                              // v0 = v2 - hi
+  v_sub_f32     v0, 1.0, v0                             // v0 = 1.0 - (v2 - hi) [v0 = y]
+  v_add_u32     v0, vcc, s0, v0                         // v0 = r [treat v0 as u32 and add it with p]
+  v_mov_b32     v1, 0xc2aeac4f                          // v1 = ln(smallest_normal) = -87.33654022216797
+  v_cmp_nlt_f32  vcc, s6, v1                            // vcc = !(s6 < v1)
+  v_cndmask_b32  v0, 0, v0, vcc                         // v0 = vcc ? v0 : 0.0f
+  v_mov_b32     v1, 0x42b17218                          // v1 = ln(largest_normal) = 88.72283935546875
+  v_cmp_lt_f32  vcc, s6, v1                             // vcc = s6 < v1
+  v_mov_b32     v1, 0x7f800000                          // v1 = 0x7f800000
+  v_cndmask_b32  v0, v1, v0, vcc                        // v0 = vcc ? v0 : v1
+  v_cmp_class_f32  vcc, s6, 3                           // vcc = isnan(s6)
+  v_mov_b32     v1, s6                                  // v1 = s6
+  v_cndmask_b32  v0, v0, v1, vcc                        // v0 = vcc ? v1 : v0
+
+  // finally, store the result, exp(inRand.x), to output[bid].x
+  s_add_u32     s0, s2, s4                              // s[0:1] = s[2:3] + s[4:5]
+  s_addc_u32    s1, s3, s5                              // 
+  v_mov_b32     v1, s0                                  // v[1:2] = s[0:1]
+  v_mov_b32     v2, s1                                  // 
+  flat_store_dword  v[1:2], v0                          // output[bix].x = v0
+  s_endpgm                                              // 00000000024C: BF810000
+end
+
+AMD HSA Code Object End

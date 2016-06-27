@@ -1,0 +1,165 @@
+module &_tmp_cloc_tmp_12865_BinomialOption_Kernels_terse_opt_bc:1:0:$full:$large:$default;
+extension "amd:gcn";
+extension "IMAGE";
+
+decl prog function &abort()();
+
+prog kernel &__OpenCL_binomial_options_kernel(
+	kernarg_u64 %__global_offset_0,
+	kernarg_u64 %__global_offset_1,
+	kernarg_u64 %__global_offset_2,
+	kernarg_u64 %__printf_buffer,
+	kernarg_u64 %__vqueue_pointer,
+	kernarg_u64 %__aqlwrap_pointer,
+	kernarg_u32 %numSteps,
+	kernarg_u64 %randArray,
+	kernarg_u64 %output,
+	kernarg_u64 %callA,
+	kernarg_u64 %callB)
+{
+	pragma "AMD RTI", "ARGSTART:__OpenCL_binomial_options_kernel";
+	pragma "AMD RTI", "version:3:1:104";
+	pragma "AMD RTI", "device:generic";
+	pragma "AMD RTI", "uniqueid:1024";
+	pragma "AMD RTI", "memory:private:0";
+	pragma "AMD RTI", "memory:region:0";
+	pragma "AMD RTI", "memory:local:0";
+	pragma "AMD RTI", "value:__global_offset_0:u64:1:1:0";
+	pragma "AMD RTI", "value:__global_offset_1:u64:1:1:16";
+	pragma "AMD RTI", "value:__global_offset_2:u64:1:1:32";
+	pragma "AMD RTI", "pointer:__printf_buffer:u8:1:1:48:uav:7:1:RW:0:0:0";
+	pragma "AMD RTI", "value:__vqueue_pointer:u64:1:1:64";
+	pragma "AMD RTI", "value:__aqlwrap_pointer:u64:1:1:80";
+	pragma "AMD RTI", "value:numSteps:u32:1:1:96";
+	pragma "AMD RTI", "pointer:randArray:float:1:1:112:uav:7:16:RW:0:0:0";
+	pragma "AMD RTI", "constarg:7:randArray";
+	pragma "AMD RTI", "pointer:output:float:1:1:128:uav:7:16:RW:0:0:0";
+	pragma "AMD RTI", "pointer:callA:float:1:1:144:l:7:16:RW:0:0:0";
+	pragma "AMD RTI", "pointer:callB:float:1:1:160:l:7:16:RW:0:0:0";
+	pragma "AMD RTI", "function:1:0";
+	pragma "AMD RTI", "memory:64bitABI";
+	pragma "AMD RTI", "privateid:8";
+	pragma "AMD RTI", "enqueue_kernel:0";
+	pragma "AMD RTI", "kernel_index:0";
+	pragma "AMD RTI", "reflection:0:size_t";
+	pragma "AMD RTI", "reflection:1:size_t";
+	pragma "AMD RTI", "reflection:2:size_t";
+	pragma "AMD RTI", "reflection:3:size_t";
+	pragma "AMD RTI", "reflection:4:size_t";
+	pragma "AMD RTI", "reflection:5:size_t";
+	pragma "AMD RTI", "reflection:6:int";
+	pragma "AMD RTI", "reflection:7:float4*";
+	pragma "AMD RTI", "reflection:8:float4*";
+	pragma "AMD RTI", "reflection:9:float4*";
+	pragma "AMD RTI", "reflection:10:float4*";
+	pragma "AMD RTI", "ARGEND:__OpenCL_binomial_options_kernel";
+
+@__OpenCL_binomial_options_kernel_entry:
+	// BB#0:
+	workgroupid_u32	$s0, 0;
+	cvt_u64_u32	$d0, $s0;
+	shl_u64	$d0, $d0, 4;
+	ld_kernarg_align(8)_width(all)_u64	$d1, [%randArray];
+	add_u64	$d1, $d1, $d0;
+	// $s0: randArray[bid].x
+	ld_global_align(16)_const_width(WAVESIZE)_f32	$s0, [$d1];
+	cmp_lt_ftz_b1_f32	$c0, $s0, 0F00000000;
+	// s4 = -0.5 if $s0 < 0 else 0.5
+	cmov_b32	$s4, $c0, 0xbf000000, 0x3f000000;
+	// $s3 = $s0 * 10
+	mul_ftz_f32	$s3, $s0, 0F41200000;
+	// $s2 = 1 - $s0
+	sub_ftz_f32	$s2, 0F3f800000, $s0;
+	mul_ftz_f32	$s5, $s2, 0F3e800000;
+	workitemid_u32	$s1, 0;
+	add_ftz_f32	$s3, $s5, $s3;
+	cvt_near_f32_u32	$s5, $s1;
+	// $s6 = numSteps
+	ld_kernarg_align(4)_width(all)_u32	$s6, [%numSteps];
+	cvt_near_f32_s32	$s6, $s6;
+	// $s7 = 1 / numSteps
+	amd_gcn_divrelaxednarrow_f32	$s7, 0F3f800000, $s6;
+	mul_ftz_f32	$s3, $s3, $s7;
+	add_ftz_f32	$s5, $s5, $s5;
+	nsqrt_f32	$s3, $s3;
+	sub_ftz_f32	$s5, $s5, $s6;
+	mul_ftz_f32	$s3, $s3, 0F3e99999a;
+	mul_ftz_f32	$s3, $s3, $s5;
+	cmp_lt_ftz_b1_f32	$c0, $s3, 0F00000000;
+	cmov_b32	$s5, $c0, 0xbf000000, 0x3f000000;
+	nfma_f32	$s4, $s0, 0F3fb8aa3b, $s4;
+	cvt_ftz_s32_f32	$s6, $s4;
+	cvt_near_f32_s32	$s7, $s6;
+	nfma_f32	$s4, $s7, 0Fbf317180, $s0;
+	mul_ftz_f32	$s8, $s7, 0Fb717f7d1;
+	add_ftz_f32	$s8, $s4, $s8;
+	mul_ftz_f32	$s9, $s8, $s8;
+	nfma_f32	$s10, $s9, 0F3331bb4c, 0Fb5ddea0e;
+	nfma_f32	$s10, $s9, $s10, 0F388ab355;
+	nfma_f32	$s10, $s9, $s10, 0Fbb360b61;
+	shl_u32	$s6, $s6, 23;
+	nfma_f32	$s10, $s9, $s10, 0F3e2aaaab;
+	mul_ftz_f32	$s7, $s7, 0F3717f7d1;
+	neg_f32	$s10, $s10;
+	nfma_f32	$s9, $s9, $s10, $s8;
+	mul_ftz_f32	$s8, $s8, $s9;
+	sub_ftz_f32	$s9, 0F40000000, $s9;
+	amd_gcn_divrelaxed_ftz_f32	$s8, $s8, $s9;
+	sub_ftz_f32	$s7, $s7, $s8;
+	sub_ftz_f32	$s4, $s7, $s4;
+	sub_ftz_f32	$s4, 0F3f800000, $s4;
+	add_u32	$s4, $s4, $s6;
+	cmp_lt_ftz_b1_f32	$c0, $s0, 0Fc2aeac4f;
+	cmov_b32	$s4, $c0, 0, $s4;
+	nfma_f32	$s5, $s3, 0F3fb8aa3b, $s5;
+	cvt_ftz_s32_f32	$s6, $s5;
+	cvt_near_f32_s32	$s7, $s6;
+	nfma_f32	$s5, $s7, 0Fbf317180, $s3;
+	mul_ftz_f32	$s8, $s7, 0Fb717f7d1;
+	add_ftz_f32	$s8, $s5, $s8;
+	mul_ftz_f32	$s9, $s8, $s8;
+	nfma_f32	$s10, $s9, 0F3331bb4c, 0Fb5ddea0e;
+	nfma_f32	$s10, $s9, $s10, 0F388ab355;
+	nfma_f32	$s10, $s9, $s10, 0Fbb360b61;
+	shl_u32	$s6, $s6, 23;
+	nfma_f32	$s10, $s9, $s10, 0F3e2aaaab;
+	mul_ftz_f32	$s7, $s7, 0F3717f7d1;
+	neg_f32	$s10, $s10;
+	nfma_f32	$s9, $s9, $s10, $s8;
+	mul_ftz_f32	$s8, $s8, $s9;
+	sub_ftz_f32	$s9, 0F40000000, $s9;
+	amd_gcn_divrelaxed_ftz_f32	$s8, $s8, $s9;
+	sub_ftz_f32	$s7, $s7, $s8;
+	sub_ftz_f32	$s5, $s7, $s5;
+	sub_ftz_f32	$s5, 0F3f800000, $s5;
+	add_u32	$s5, $s5, $s6;
+	cmp_lt_ftz_b1_f32	$c0, $s3, 0Fc2aeac4f;
+	cmov_b32	$s5, $c0, 0, $s5;
+	cmp_lt_ftz_b1_f32	$c0, $s0, 0F42b17218;
+	cmov_b32	$s4, $c0, $s4, 0x7f800000;
+	cmp_lt_ftz_b1_f32	$c0, $s3, 0F42b17218;
+	cmov_b32	$s5, $c0, $s5, 0x7f800000;
+	cmp_nan_ftz_b1_f32	$c0, $s0, $s0;
+	cmov_b32	$s4, $c0, $s0, $s4;
+	cmp_nan_ftz_b1_f32	$c0, $s3, $s3;
+	cmov_b32	$s3, $c0, $s3, $s5;
+	mul_ftz_f32	$s5, $s0, 0F41f00000;
+	mul_ftz_f32	$s6, $s2, 0F40a00000;
+	mul_ftz_f32	$s0, $s0, 0F42c80000;
+	add_ftz_f32	$s0, $s2, $s0;
+	ld_kernarg_align(8)_width(all)_u64	$d1, [%callA];
+	add_ftz_f32	$s2, $s6, $s5;
+	cvt_u64_u32	$d2, $s1;
+	shl_u64	$d2, $d2, 4;
+	add_u64	$d1, $d1, $d2;
+	cvt_u32_u64	$s1, $d1;
+	ld_kernarg_align(8)_width(all)_u64	$d1, [%output];
+	add_u64	$d0, $d1, $d0;
+	mul_ftz_f32	$s2, $s2, $s3;
+	sub_ftz_f32	$s0, $s2, $s0;
+	amd_gcn_max_f32	$s0, $s0, 0F00000000;
+	// no need this line! The backend would apply dead store elimination and eliminate lots of HSAIL instructions
+	st_group_align(16)_f32	$s0, [$s1];
+	st_global_align(16)_f32	$s4, [$d0];
+	ret;
+};
