@@ -6,3 +6,8 @@ top down misched: 1664.8ms on average
 
 baseline (without constant folding): 1611.0ms on average
     1597.0, 1607.1, 1608.5, 1621.3, 1622.3, 1614.1, 1609.8, 1607.7
+
+===============================================================================
+36 vi-make-madmk          - Number of Madak generations
+60 vi-make-madmk          - Number of Madmk generations
+16 vi-make-madmk          - Number of constant folded into v_mul_f32
