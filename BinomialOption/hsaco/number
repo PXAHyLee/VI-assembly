@@ -1,0 +1,8 @@
+bottom up misched: 1529.6ms on average 
+    1528.5, 1527.2, 1526.8, 1539.2, 1537.9, 1522.7, 1531.0, 1523.6
+
+top down misched: 1664.8ms on average
+    1653.9, 1665.9, 1665.1, 1665.6, 1666.2, 1659.7, 1669.4, 1672.2
+
+baseline (without constant folding): 1611.0ms on average
+    1597.0, 1607.1, 1608.5, 1621.3, 1622.3, 1614.1, 1609.8, 1607.7
